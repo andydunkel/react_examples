@@ -1,19 +1,28 @@
 import React, {useState} from 'react';
 import axios from 'axios';
 
+
 function FileUploadComponent() {
     const [selectedFile, setSelectedFile] = useState();
     const [isFilePicked, setIsFilePicked] = useState(false);
     const [message, setMessage] = useState("");
+    const [size, setSize] = useState("");
+    const [type, setType] = useState("");
+    const [name, setName] = useState("");
 
 
-    function changeHandler(event) {
+    function changeHandler(event: any) {
         console.log(event.target.files);
         setSelectedFile(event.target.files[0]);
+        setName(event.target.files[0].name);
+        setType(event.target.files[0].type);
+        setSize(event.target.files[0].size);
         setIsFilePicked(true);
     }
 
     async function handleSubmit() {
+        if (selectedFile === undefined) return;
+
         if (!isFilePicked) {
             console.log("No file selected");
             return;
@@ -21,6 +30,8 @@ function FileUploadComponent() {
 
         let url = "http://localhost:8080/config/upload/v1";
         let formData = new FormData();
+
+        // @ts-ignore
         formData.append('file', selectedFile);
 
         const resp = await axios.post(url, formData, {
@@ -37,14 +48,16 @@ function FileUploadComponent() {
         }
     }
 
+
+    // @ts-ignore
     return (
         <div>
             <input type="file" name="file" onChange={changeHandler} />
-            {isFilePicked ? (
+            {isFilePicked && selectedFile !== undefined && selectedFile !== null ? (
                 <div>
-                    <p>Dateiname: {selectedFile.name}</p>
-                    <p>Dateityp: {selectedFile.type}</p>
-                    <p>Dateigröße (bytes): {selectedFile.size}</p>
+                    <p>Dateiname: {name}</p>
+                    <p>Dateityp: {type}</p>
+                    <p>Dateigröße (bytes): {size}</p>
                 </div>
             ) : (
                 <p>Bitte wählen Sie eine Datei</p>
